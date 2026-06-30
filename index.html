@@ -103,6 +103,20 @@
         }
         nav a:hover::after, nav a.active::after { width: 100%; }
 
+        .lang-switcher {
+            flex-shrink: 0;
+            margin-left: 16px;
+            padding: 6px 10px;
+            border: 1px solid var(--accent-line);
+            border-radius: 4px;
+            background: #fff;
+            color: var(--accent-rail);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .lang-switcher:focus { outline: none; border-color: var(--accent-rail); }
+
         main { max-width: 1200px; margin: 0 auto; padding: 40px 20px; flex: 1; width: 100%; }
         .page { display: none; }
         .page.active { display: block; animation: stationFade 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -312,18 +326,23 @@
         <div class="nav-container">
             <div class="station-logo" onclick="switchPlatform('home')">
                 <div class="logo-title">Phuwin</div>
-                <div class="logo-sub" id="loginStatusBadge">訪客模式</div>
+                <div class="logo-sub" id="loginStatusBadge" data-i18n="badge_guest">訪客模式</div>
             </div>
             <nav>
                 <ul>
-                    <li><a href="#" class="nav-link active" onclick="switchPlatform('home')">轉運大廳 / HOME</a></li>
-                    <li><a href="#" class="nav-link" onclick="switchPlatform('profile')">車長檔案 / PROFILE</a></li>
-                    <li><a href="#" class="nav-link" onclick="switchPlatform('drama')">影視車廂 / CARRIAGE 1</a></li>
-                    <li><a href="#" class="nav-link" onclick="switchPlatform('music')">音樂廣播 / CARRIAGE 2</a></li>
-                    <li><a href="#" class="nav-link" onclick="switchPlatform('interview')">採訪車廂 / CARRIAGE 3</a></li>
-                    <li><a href="#" class="nav-link" onclick="switchPlatform('praise')">美談月台 / THE WALL</a></li>
+                    <li><a href="#" class="nav-link active" onclick="switchPlatform('home')" data-i18n="nav_home">轉運大廳 / HOME</a></li>
+                    <li><a href="#" class="nav-link" onclick="switchPlatform('profile')" data-i18n="nav_profile">車長檔案 / PROFILE</a></li>
+                    <li><a href="#" class="nav-link" onclick="switchPlatform('drama')" data-i18n="nav_drama">影視車廂 / CARRIAGE 1</a></li>
+                    <li><a href="#" class="nav-link" onclick="switchPlatform('music')" data-i18n="nav_music">音樂廣播 / CARRIAGE 2</a></li>
+                    <li><a href="#" class="nav-link" onclick="switchPlatform('interview')" data-i18n="nav_interview">採訪車廂 / CARRIAGE 3</a></li>
+                    <li><a href="#" class="nav-link" onclick="switchPlatform('praise')" data-i18n="nav_praise">美談月台 / THE WALL</a></li>
                 </ul>
             </nav>
+            <select id="langSwitcher" class="lang-switcher" onchange="setLanguage(this.value)">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+                <option value="th">ภาษาไทย</option>
+            </select>
         </div>
     </header>
 
@@ -333,19 +352,19 @@
                 <h1>PHUWIN ARCHIVE TERMINAL</h1>
                 <p>Next stop... Terminal Phuwin</p>
                 <div class="station-sign">
-                    <div class="station-name" onclick="triggerAdminLogin()">普明總站</div>
+                    <div class="station-name" onclick="triggerAdminLogin()" data-i18n="station_name">普明總站</div>
                   
                 </div>
             </div>
             
             <div class="two-column-layout">
                 <div>
-                    <div class="section-title">STATION TIMETABLE / 列車運轉時刻表</div>
+                    <div class="section-title" data-i18n="title_timetable">STATION TIMETABLE / 列車運轉時刻表</div>
                     <div class="calendar-box">
                         <div class="calendar-nav">
-                            <button onclick="changeMonth(-1)">◀ 上個月 / PREV</button>
+                            <button onclick="changeMonth(-1)" data-i18n="cal_prev">◀ 上個月 / PREV</button>
                             <div class="calendar-header" id="calendarTitle">JULY 2026</div>
-                            <button onclick="changeMonth(1)">下個月 / NEXT ▶</button>
+                            <button onclick="changeMonth(1)" data-i18n="cal_next">下個月 / NEXT ▶</button>
                         </div>
                         <div class="calendar-grid" id="calendarGrid"></div>
                     </div>
@@ -390,21 +409,21 @@
                     </div>
 
                     <div class="guide-box">
-                        <h3 style="font-size: 14px; font-weight: 700; color: var(--accent-rail);">📋 乘車指南 / PASSENGER GUIDE</h3>
+                        <h3 style="font-size: 14px; font-weight: 700; color: var(--accent-rail);" data-i18n="guide_title">📋 乘車指南 / PASSENGER GUIDE</h3>
                         <ol>
-                            <li><strong>跨月調度：</strong>點擊翻月按鈕可直接查看各月排班狀況。</li>
-                            <li><strong>格子大小固定：</strong>行事曆格子尺寸已嚴格限制，再長的活動名都會自動精簡，日曆再也不會變形囉！</li>
-                            <li><strong>點擊查看詳情：</strong>有活動的日期格子可直接點擊，彈窗會完整顯示當天所有班次細節。</li>
-                            <li><strong>車長登入：</strong>點擊上方「普明總站」，輸入車長 Email 與密碼即可登入，開啟全網頁所有後台；再次點擊可登出。</li>
-                            <li><strong>即時同步：</strong>所有資料儲存在雲端資料庫，任何人打開本站看到的都是同一份最新資料。</li>
+                            <li data-i18n="guide_1"><strong>跨月調度：</strong>點擊翻月按鈕可直接查看各月排班狀況。</li>
+                            <li data-i18n="guide_2"><strong>格子大小固定：</strong>行事曆格子尺寸已嚴格限制，再長的活動名都會自動精簡，日曆再也不會變形囉！</li>
+                            <li data-i18n="guide_3"><strong>點擊查看詳情：</strong>有活動的日期格子可直接點擊，彈窗會完整顯示當天所有班次細節。</li>
+                            <li data-i18n="guide_4"><strong>車長登入：</strong>點擊上方「普明總站」，輸入車長 Email 與密碼即可登入，開啟全網頁所有後台；再次點擊可登出。</li>
+                            <li data-i18n="guide_5"><strong>即時同步：</strong>所有資料儲存在雲端資料庫，任何人打開本站看到的都是同一份最新資料。</li>
                         </ol>
                     </div>
                 </div>
 
                 <div>
-                    <div class="section-title">INFORMATION & COUNTDOWN</div>
+                    <div class="section-title" data-i18n="title_info">INFORMATION & COUNTDOWN</div>
                     <div class="major-events">
-                        <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--accent-rail);">⏳ 列車班次詳細情報與倒數</h4>
+                        <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--accent-rail);" data-i18n="info_heading">⏳ 列車班次詳細情報與倒數</h4>
                         <div class="major-events-scroll">
                             <div id="majorEventsList"></div>
                         </div>
@@ -414,7 +433,7 @@
         </section>
 
         <section id="profile" class="page">
-            <div class="section-title">CONDUCTOR PROFILE / 車長檔案車廂</div>
+            <div class="section-title" data-i18n="title_profile">CONDUCTOR PROFILE / 車長檔案車廂</div>
             <div class="profile-layout">
                 <div class="profile-avatar-box">
                     <img id="profImg" class="profile-avatar" src="https://placehold.co/300x300/2c3e50/ffffff?text=PHUWIN" alt="Phuwin">
@@ -448,7 +467,7 @@
         </section>
 
         <section id="drama" class="page">
-            <div class="section-title">FILMOGRAPHY & VARIETY / 影視綜藝車廂</div>
+            <div class="section-title" data-i18n="title_drama">FILMOGRAPHY & VARIETY / 影視綜藝車廂</div>
             <div class="grid-carriage" id="dramaCarriageGrid"></div>
 
             <div class="admin-panel" id="adminDramaPanel" style="border-color: #3498db;">
@@ -468,7 +487,7 @@
         </section>
 
         <section id="music" class="page">
-            <div class="section-title">DISCOGRAPHY & STAGE / 音樂作品廣播</div>
+            <div class="section-title" data-i18n="title_music">DISCOGRAPHY & STAGE / 音樂作品廣播</div>
             <div class="grid-carriage" id="musicCarriageGrid"></div>
 
             <div class="admin-panel" id="adminMusicPanel" style="border-color: #e67e22;">
@@ -488,7 +507,7 @@
         </section>
 
         <section id="interview" class="page">
-            <div class="section-title">WORDS & THINKING / 深度採訪車廂</div>
+            <div class="section-title" data-i18n="title_interview">WORDS & THINKING / 深度採訪車廂</div>
             <div class="interview-container" id="interviewContainer"></div>
 
             <div class="admin-panel" id="adminInterviewPanel" style="border-color: #16a085;">
@@ -514,14 +533,14 @@
         </section>
 
         <section id="praise" class="page">
-            <div class="section-title">STATION WALL / 美談與安利月台</div>
+            <div class="section-title" data-i18n="title_praise">STATION WALL / 美談與安利月台</div>
             <div class="two-column-layout reverse-layout">
                 <div class="ticket-booth">
-                    <h3 style="font-size: 16px; margin-bottom: 20px; font-weight: 600; color: var(--accent-rail);">🎫 填寫安利車票</h3>
+                    <h3 style="font-size: 16px; margin-bottom: 20px; font-weight: 600; color: var(--accent-rail);" data-i18n="ticket_form_title">🎫 填寫安利車票</h3>
                     <form id="ticketForm">
-                        <div class="input-track"><label for="passengerName">乘客暱稱</label><input type="text" id="passengerName" placeholder="EX: 曼谷特快車乘客" required></div>
-                        <div class="input-track"><label for="ticketMessage">美談 / 安利內容</label><textarea id="ticketMessage" rows="5" placeholder="分享車長的暖心舉動，送出後需經車長審核過濾才會公開顯示喔！" required></textarea></div>
-                        <button type="submit" class="btn-board">登車並掛上月台</button>
+                        <div class="input-track"><label for="passengerName" data-i18n="ticket_name_label">乘客暱稱</label><input type="text" id="passengerName" data-i18n-placeholder="ticket_name_placeholder" placeholder="EX: 曼谷特快車乘客" required></div>
+                        <div class="input-track"><label for="ticketMessage" data-i18n="ticket_message_label">美談 / 安利內容</label><textarea id="ticketMessage" rows="5" data-i18n-placeholder="ticket_message_placeholder" placeholder="分享車長的暖心舉動，送出後需經車長審核過濾才會公開顯示喔！" required></textarea></div>
+                        <button type="submit" class="btn-board" data-i18n="ticket_submit">登車並掛上月台</button>
                     </form>
                 </div>
                 <div class="message-wall" id="stationWall"></div>
@@ -530,8 +549,8 @@
     </main>
 
     <footer>
-        <p>PHUWIN ARCHIVE TERMINAL — ARCHIVE & FANSPACE DEMO</p>
-        <div class="footer-contact">如有問題歡迎聯繫更新 ─ X (Twitter)：<a href="https://x.com/ahbuuuuu_" target="_blank">@ahbuuuuu_</a></div>
+        <p data-i18n="footer_title">PHUWIN ARCHIVE TERMINAL — ARCHIVE & FANSPACE DEMO</p>
+        <div class="footer-contact"><span data-i18n="footer_contact">如有問題歡迎聯繫更新 ─ X (Twitter)：</span><a href="https://x.com/ahbuuuuu_" target="_blank">@ahbuuuuu_</a></div>
     </footer>
 
     <!-- 🪟 日曆事件詳情彈窗 -->
@@ -544,6 +563,115 @@
     </div>
 
     <script>
+
+        // --- 🌐 多語言介面（中文 / English / ภาษาไทย） ---
+        const translations = {
+            zh: {
+                badge_guest: "訪客模式", badge_admin: "🚂 車長模式",
+                nav_home: "轉運大廳 / HOME", nav_profile: "車長檔案 / PROFILE", nav_drama: "影視車廂 / CARRIAGE 1",
+                nav_music: "音樂廣播 / CARRIAGE 2", nav_interview: "採訪車廂 / CARRIAGE 3", nav_praise: "美談月台 / THE WALL",
+                station_name: "普明總站",
+                title_timetable: "STATION TIMETABLE / 列車運轉時刻表", title_info: "INFORMATION & COUNTDOWN",
+                title_profile: "CONDUCTOR PROFILE / 車長檔案車廂", title_drama: "FILMOGRAPHY & VARIETY / 影視綜藝車廂",
+                title_music: "DISCOGRAPHY & STAGE / 音樂作品廣播", title_interview: "WORDS & THINKING / 深度採訪車廂",
+                title_praise: "STATION WALL / 美談與安利月台",
+                cal_prev: "◀ 上個月 / PREV", cal_next: "下個月 / NEXT ▶",
+                info_heading: "⏳ 列車班次詳細情報與倒數",
+                guide_title: "📋 乘車指南 / PASSENGER GUIDE",
+                guide_1: "<strong>跨月調度：</strong>點擊翻月按鈕可直接查看各月排班狀況。",
+                guide_2: "<strong>格子大小固定：</strong>行事曆格子尺寸已嚴格限制，再長的活動名都會自動精簡，日曆再也不會變形囉！",
+                guide_3: "<strong>點擊查看詳情：</strong>有活動的日期格子可直接點擊，彈窗會完整顯示當天所有班次細節。",
+                guide_4: "<strong>車長登入：</strong>點擊上方「普明總站」，輸入車長 Email 與密碼即可登入，開啟全網頁所有後台；再次點擊可登出。",
+                guide_5: "<strong>即時同步：</strong>所有資料儲存在雲端資料庫，任何人打開本站看到的都是同一份最新資料。",
+                ticket_form_title: "🎫 填寫安利車票", ticket_name_label: "乘客暱稱", ticket_name_placeholder: "EX: 曼谷特快車乘客",
+                ticket_message_label: "美談 / 安利內容", ticket_message_placeholder: "分享車長的暖心舉動，送出後需經車長審核過濾才會公開顯示喔！",
+                ticket_submit: "登車並掛上月台",
+                footer_title: "PHUWIN ARCHIVE TERMINAL — ARCHIVE & FANSPACE DEMO", footer_contact: "如有問題歡迎聯繫更新 ─ X (Twitter)：",
+                day_sun: "日", day_mon: "一", day_tue: "二", day_wed: "三", day_thu: "四", day_fri: "五", day_sat: "六",
+                no_schedule_month: "本月暫無列車排班。", no_interview: "目前採訪車廂尚無訪談紀錄。", no_ticket: "月台目前一片靜謐。",
+                time_label: "🕒 時間：", location_label: "📍 地點：", location_label_modal: "📍 地點／網址：",
+                countdown_today: "● TODAY", countdown_ended: "已結束", countdown_prefix: "倒數 ", countdown_suffix: " 天",
+                modal_detail_suffix: " 班次詳情",
+                passenger_label: "乘客：", track_label: "TRACK | ",
+                login_prompt_email: "請輸入車長 Email：", login_prompt_pw: "請輸入密碼：",
+            },
+            en: {
+                badge_guest: "Guest Mode", badge_admin: "🚂 Conductor Mode",
+                nav_home: "HOME", nav_profile: "PROFILE", nav_drama: "CARRIAGE 1 · FILMS",
+                nav_music: "CARRIAGE 2 · MUSIC", nav_interview: "CARRIAGE 3 · INTERVIEWS", nav_praise: "THE WALL",
+                station_name: "Phuwin Central",
+                title_timetable: "STATION TIMETABLE", title_info: "INFORMATION & COUNTDOWN",
+                title_profile: "CONDUCTOR PROFILE", title_drama: "FILMOGRAPHY & VARIETY",
+                title_music: "DISCOGRAPHY & STAGE", title_interview: "WORDS & THINKING",
+                title_praise: "STATION WALL",
+                cal_prev: "◀ PREV", cal_next: "NEXT ▶",
+                info_heading: "⏳ Schedule Details & Countdown",
+                guide_title: "📋 PASSENGER GUIDE",
+                guide_1: "<strong>Month switching:</strong> Use the prev/next buttons to view schedules for other months.",
+                guide_2: "<strong>Fixed cell size:</strong> Calendar cells keep a fixed height — long event names are auto-trimmed so the layout never breaks.",
+                guide_3: "<strong>Tap for details:</strong> Click any date with an event to open a popup with full schedule details.",
+                guide_4: "<strong>Conductor login:</strong> Click \"Phuwin Central\" above and sign in with the conductor's email & password to unlock all admin panels; click again to log out.",
+                guide_5: "<strong>Live sync:</strong> All data lives in the cloud — everyone visiting the site sees the same up-to-date information.",
+                ticket_form_title: "🎫 Leave a Shout-Out", ticket_name_label: "Your Name", ticket_name_placeholder: "e.g. Bangkok Express Rider",
+                ticket_message_label: "Your Message", ticket_message_placeholder: "Share a heartwarming moment about the conductor — it will be reviewed before going public!",
+                ticket_submit: "Board & Post on the Wall",
+                footer_title: "PHUWIN ARCHIVE TERMINAL — ARCHIVE & FANSPACE DEMO", footer_contact: "Questions or updates? Reach out on X (Twitter): ",
+                day_sun: "Sun", day_mon: "Mon", day_tue: "Tue", day_wed: "Wed", day_thu: "Thu", day_fri: "Fri", day_sat: "Sat",
+                no_schedule_month: "No scheduled events this month.", no_interview: "No interviews posted yet.", no_ticket: "It's quiet on the platform right now.",
+                time_label: "🕒 Time: ", location_label: "📍 Location: ", location_label_modal: "📍 Location / Link: ",
+                countdown_today: "● TODAY", countdown_ended: "Ended", countdown_prefix: "", countdown_suffix: " days left",
+                modal_detail_suffix: " Schedule Details",
+                passenger_label: "From: ", track_label: "TRACK | ",
+                login_prompt_email: "Enter conductor email:", login_prompt_pw: "Enter password:",
+            },
+            th: {
+                badge_guest: "โหมดผู้เยี่ยมชม", badge_admin: "🚂 โหมดนายสถานี",
+                nav_home: "หน้าแรก", nav_profile: "โปรไฟล์", nav_drama: "ตู้ 1 · ผลงานภาพยนตร์",
+                nav_music: "ตู้ 2 · เพลง", nav_interview: "ตู้ 3 · บทสัมภาษณ์", nav_praise: "กำแพงแห่งความประทับใจ",
+                station_name: "สถานีภูวิน",
+                title_timetable: "ตารางเวลารถไฟ", title_info: "ข้อมูลและการนับถอยหลัง",
+                title_profile: "โปรไฟล์นายสถานี", title_drama: "ผลงานภาพยนตร์ & วาไรตี้",
+                title_music: "ผลงานเพลง & การแสดงสด", title_interview: "คำพูด & มุมมอง",
+                title_praise: "กำแพงแห่งความประทับใจ",
+                cal_prev: "◀ ก่อนหน้า", cal_next: "ถัดไป ▶",
+                info_heading: "⏳ รายละเอียดตารางงาน & นับถอยหลัง",
+                guide_title: "📋 คู่มือผู้โดยสาร",
+                guide_1: "<strong>เปลี่ยนเดือน:</strong> กดปุ่มก่อนหน้า/ถัดไป เพื่อดูตารางงานของเดือนอื่น",
+                guide_2: "<strong>ขนาดช่องคงที่:</strong> ช่องปฏิทินมีความสูงคงที่ ชื่องานที่ยาวจะถูกตัดให้พอดีโดยอัตโนมัติ ไม่ทำให้หน้าเว็บเพี้ยน",
+                guide_3: "<strong>คลิกดูรายละเอียด:</strong> คลิกวันที่ที่มีงาน จะมีหน้าต่างป๊อปอัพแสดงรายละเอียดงานทั้งหมดของวันนั้น",
+                guide_4: "<strong>เข้าสู่ระบบนายสถานี:</strong> คลิกที่ \"สถานีภูวิน\" ด้านบน แล้วล็อกอินด้วยอีเมลและรหัสผ่านของนายสถานี เพื่อเปิดแผงควบคุมทั้งหมด คลิกอีกครั้งเพื่อออกจากระบบ",
+                guide_5: "<strong>ซิงค์แบบเรียลไทม์:</strong> ข้อมูลทั้งหมดเก็บอยู่บนคลาวด์ ทุกคนที่เข้าชมเว็บไซต์จะเห็นข้อมูลล่าสุดชุดเดียวกัน",
+                ticket_form_title: "🎫 เขียนข้อความชื่นชม", ticket_name_label: "ชื่อเล่นผู้โดยสาร", ticket_name_placeholder: "เช่น ผู้โดยสารรถด่วนกรุงเทพฯ",
+                ticket_message_label: "ข้อความชื่นชม", ticket_message_placeholder: "แชร์เรื่องราวอบอุ่นใจเกี่ยวกับนายสถานี ข้อความจะถูกตรวจสอบก่อนเผยแพร่!",
+                ticket_submit: "ส่งข้อความขึ้นกำแพง",
+                footer_title: "PHUWIN ARCHIVE TERMINAL — ARCHIVE & FANSPACE DEMO", footer_contact: "มีคำถามหรือต้องการแจ้งข้อมูลเพิ่มเติม ติดต่อทาง X (Twitter): ",
+                day_sun: "อา.", day_mon: "จ.", day_tue: "อ.", day_wed: "พ.", day_thu: "พฤ.", day_fri: "ศ.", day_sat: "ส.",
+                no_schedule_month: "เดือนนี้ยังไม่มีตารางงาน", no_interview: "ยังไม่มีบทสัมภาษณ์ในขณะนี้", no_ticket: "ตอนนี้ยังเงียบอยู่บนชานชาลา",
+                time_label: "🕒 เวลา: ", location_label: "📍 สถานที่: ", location_label_modal: "📍 สถานที่ / ลิงก์: ",
+                countdown_today: "● วันนี้", countdown_ended: "จบแล้ว", countdown_prefix: "อีก ", countdown_suffix: " วัน",
+                modal_detail_suffix: " รายละเอียดตารางงาน",
+                passenger_label: "จาก: ", track_label: "TRACK | ",
+                login_prompt_email: "กรุณากรอกอีเมลนายสถานี:", login_prompt_pw: "กรุณากรอกรหัสผ่าน:",
+            }
+        };
+        let currentLang = localStorage.getItem('phuwin_lang') || 'zh';
+        function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
+        function applyStaticTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n')); });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-placeholder')); });
+            const sw = document.getElementById('langSwitcher');
+            if (sw) sw.value = currentLang;
+        }
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('phuwin_lang', lang);
+            applyStaticTranslations();
+            renderTimetable();
+            renderInterviewCarriage();
+            renderPraiseWall();
+            const badge = document.getElementById('loginStatusBadge');
+            if (badge) badge.innerText = globalAdminLoggedIn ? t('badge_admin') : t('badge_guest');
+        }
 
         // --- 🔌 Supabase 雲端資料庫連線設定 ---
         const SUPABASE_URL = 'https://tfehhnprrgznybszoomf.supabase.co';
@@ -584,7 +712,7 @@
             document.getElementById('adminInterviewPanel').style.display = 'block';
             document.getElementById('backupPanel').style.display = 'block';
             const badge = document.getElementById('loginStatusBadge');
-            if (badge) { badge.innerText = '🚂 車長模式'; badge.style.background = 'var(--success-color)'; }
+            if (badge) { badge.innerText = t('badge_admin'); badge.style.background = 'var(--success-color)'; }
         }
         function hideAdminPanels() {
             document.getElementById('adminPanel').style.display = 'none';
@@ -594,7 +722,7 @@
             document.getElementById('adminInterviewPanel').style.display = 'none';
             document.getElementById('backupPanel').style.display = 'none';
             const badge = document.getElementById('loginStatusBadge');
-            if (badge) { badge.innerText = '訪客模式'; badge.style.background = 'var(--accent-rail)'; }
+            if (badge) { badge.innerText = t('badge_guest'); badge.style.background = 'var(--accent-rail)'; }
         }
 
         async function triggerAdminLogin() {
@@ -607,9 +735,9 @@
                 }
                 return;
             }
-            const email = prompt("請輸入車長 Email：");
+            const email = prompt(t('login_prompt_email'));
             if (email === null || email.trim() === "") return;
-            const password = prompt("請輸入密碼：");
+            const password = prompt(t('login_prompt_pw'));
             if (password === null || password.trim() === "") return;
             const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password: password.trim() });
             if (error) { alert("登入失敗：" + error.message); return; }
@@ -687,7 +815,7 @@
             const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
             if (titleElement) titleElement.innerText = `${monthNames[currentDisplayMonth - 1]} ${currentDisplayYear}`;
 
-            let gridHtml = `<div class="calendar-day-label">日</div><div class="calendar-day-label">一</div><div class="calendar-day-label">二</div><div class="calendar-day-label">三</div><div class="calendar-day-label">四</div><div class="calendar-day-label">五</div><div class="calendar-day-label">六</div>`;
+            let gridHtml = `<div class="calendar-day-label">${t('day_sun')}</div><div class="calendar-day-label">${t('day_mon')}</div><div class="calendar-day-label">${t('day_tue')}</div><div class="calendar-day-label">${t('day_wed')}</div><div class="calendar-day-label">${t('day_thu')}</div><div class="calendar-day-label">${t('day_fri')}</div><div class="calendar-day-label">${t('day_sat')}</div>`;
             const firstDayIndex = new Date(currentDisplayYear, currentDisplayMonth - 1, 1).getDay();
             const totalDays = new Date(currentDisplayYear, currentDisplayMonth, 0).getDate();
             const prevMonthTotalDays = new Date(currentDisplayYear, currentDisplayMonth - 1, 0).getDate();
@@ -708,13 +836,13 @@
             if (!listContainer) return;
             listContainer.innerHTML = '';
             const currentMonthList = schedules.filter(s => s.year === currentDisplayYear && s.month === currentDisplayMonth).sort((a,b)=>a.day-b.day);
-            if(currentMonthList.length === 0) { listContainer.innerHTML = `<div style="text-align:center; color:var(--text-sub); font-size:13px; padding:20px 0;">本月暫無列車排班。</div>`; syncEventsListHeight(); return; }
+            if(currentMonthList.length === 0) { listContainer.innerHTML = `<div style="text-align:center; color:var(--text-sub); font-size:13px; padding:20px 0;">${t('no_schedule_month')}</div>`; syncEventsListHeight(); return; }
             currentMonthList.forEach(item => {
                 const targetDate = new Date(`${item.year}-${String(item.month).padStart(2,'0')}-${String(item.day).padStart(2,'0')}T00:00:00`).getTime();
                 const distance = targetDate - new Date().getTime();
-                let countdownHtml = distance < 0 ? (distance > -86400000 ? `<span class="countdown-badge" style="background:#2ecc71;">● TODAY</span>` : `<span class="countdown-badge" style="background:#b2bec3;">已結束</span>`) : `<span class="countdown-badge">倒數 ${Math.ceil(distance/(1000*60*60*24))} 天</span>`;
+                let countdownHtml = distance < 0 ? (distance > -86400000 ? `<span class="countdown-badge" style="background:#2ecc71;">${t('countdown_today')}</span>` : `<span class="countdown-badge" style="background:#b2bec3;">${t('countdown_ended')}</span>`) : `<span class="countdown-badge">${t('countdown_prefix')}${Math.ceil(distance/(1000*60*60*24))}${t('countdown_suffix')}</span>`;
                 const itemDiv = document.createElement('div'); itemDiv.className = 'major-event-item';
-                itemDiv.innerHTML = `<div class="event-main-line"><div><span class="major-event-tag">${item.tag}</span> <strong>${item.month}.${item.day}</strong> — ${item.title}</div>${countdownHtml}</div><div class="event-detail-sub" style="display:flex; justify-content:space-between;"><div>🕒 時間：${item.time} | 📍 地點：${item.location}</div>${globalAdminLoggedIn ? `<button class="btn-delete" onclick="deleteSchedule(${item.id})">❌ 下架</button>` : ''}</div>`;
+                itemDiv.innerHTML = `<div class="event-main-line"><div><span class="major-event-tag">${item.tag}</span> <strong>${item.month}.${item.day}</strong> — ${item.title}</div>${countdownHtml}</div><div class="event-detail-sub" style="display:flex; justify-content:space-between;"><div>${t('time_label')}${item.time} | ${t('location_label')}${item.location}</div>${globalAdminLoggedIn ? `<button class="btn-delete" onclick="deleteSchedule(${item.id})">❌ 下架</button>` : ''}</div>`;
                 listContainer.appendChild(itemDiv);
             });
             syncEventsListHeight();
@@ -727,14 +855,14 @@
             if (dayEvents.length === 0) return;
             const titleEl = document.getElementById('dayModalTitle');
             const bodyEl = document.getElementById('dayModalBody');
-            titleEl.innerText = `🚉 ${year}.${month}.${day} 班次詳情`;
+            titleEl.innerText = `🚉 ${year}.${month}.${day}${t('modal_detail_suffix')}`;
             bodyEl.innerHTML = '';
             dayEvents.forEach(e => {
                 const privacyClass = e.privacy === 'PRIVATE' ? 'privacy-private' : 'privacy-public';
                 const privacyLabel = e.privacy === 'PRIVATE' ? 'PRIVATE 非公開' : 'PUBLIC 公開';
                 const block = document.createElement('div');
                 block.className = 'modal-event-block';
-                block.innerHTML = `<span class="major-event-tag">${e.tag}</span><span class="privacy-tag ${privacyClass}">${privacyLabel}</span><div class="modal-event-name">${e.title}</div><div class="modal-event-meta">🕒 時間：${e.time}<br>📍 地點／網址：${e.location}</div>`;
+                block.innerHTML = `<span class="major-event-tag">${e.tag}</span><span class="privacy-tag ${privacyClass}">${privacyLabel}</span><div class="modal-event-name">${e.title}</div><div class="modal-event-meta">${t('time_label')}${e.time}<br>${t('location_label_modal')}${e.location}</div>`;
                 bodyEl.appendChild(block);
             });
             document.getElementById('dayModalOverlay').classList.add('active');
@@ -831,7 +959,7 @@
                 div.innerHTML = `${videoHtml}${quoteHtml}<div class="interview-source">${item.source}</div>${globalAdminLoggedIn ? `<button class="btn-delete" style="position:absolute; top:15px; left:15px; z-index:10;" onclick="deleteInterviewItem(${item.id})">❌ 下架訪談</button>` : ''}`;
                 container.appendChild(div);
             });
-            if (interviewItems.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-sub); padding:30px 0;">目前採訪車廂尚無訪談紀錄。</div>`; }
+            if (interviewItems.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-sub); padding:30px 0;">${t('no_interview')}</div>`; }
         }
 
         // --- 6. 美談與安利月台審核過濾 ---
@@ -848,10 +976,10 @@
                     reviewBadgeHtml = `<span class="review-badge ${statusClass}">${ticket.status === "APPROVED" ? "已公開顯示" : "⏳ 待審核投稿"}</span>`;
                     adminActionHtml = `<div style="margin-top:12px; text-align:right;">${ticket.status === "PENDING" ? `<button class="btn-approve" onclick="approveTicket(${ticket.id})">✅ 核准公開</button>` : ''}<button class="btn-delete" onclick="deleteTicket(${ticket.id})">❌ 刪除</button></div>`;
                 }
-                card.innerHTML = `${reviewBadgeHtml}<p class="ticket-text">${ticket.message}</p><div class="ticket-meta"><span style="font-weight: 600; color: #2c3e50;">乘客：${ticket.name}</span><span>TRACK | ${ticket.date}</span></div>${adminActionHtml}`;
+                card.innerHTML = `${reviewBadgeHtml}<p class="ticket-text">${ticket.message}</p><div class="ticket-meta"><span style="font-weight: 600; color: #2c3e50;">${t('passenger_label')}${ticket.name}</span><span>${t('track_label')}${ticket.date}</span></div>${adminActionHtml}`;
                 wall.appendChild(card);
             });
-            if(wall.children.length === 0) wall.innerHTML = `<div style="text-align:center; color:var(--text-sub); padding:30px 0; font-size:14px;">月台目前一片靜謐。</div>`;
+            if(wall.children.length === 0) wall.innerHTML = `<div style="text-align:center; color:var(--text-sub); padding:30px 0; font-size:14px;">${t('no_ticket')}</div>`;
         }
 
         // --- 防錯加強版網址處理工具 ---
@@ -1081,6 +1209,7 @@
 
         // --- 啟動全站 ---
         (async function init() {
+            applyStaticTranslations();
             await checkExistingSession();
             await renderAll();
             setupRealtimeSync();
