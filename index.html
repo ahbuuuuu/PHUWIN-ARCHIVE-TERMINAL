@@ -248,6 +248,7 @@
         .btn-board:hover { background: #1a252f; }
         .btn-delete { background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 12px; font-weight: bold; }
         .btn-approve { background: none; border: none; color: var(--success-color); cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 12px; }
+        .btn-edit { background: none; border: none; color: var(--accent-rail); cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 12px; }
 
         /* 💾 備份匯出/匯入面板 */
         .backup-panel { background: #fff; border: 1px dashed var(--accent-rail); border-radius: 4px; padding: 20px; margin-top: 20px; display: none; }
@@ -263,6 +264,11 @@
 
         .guide-box { background: #eaedf0; padding: 25px; border-radius: 4px; border-top: 4px solid var(--accent-rail); margin-top: 30px; }
         .guide-box ol { padding-left: 18px; margin-top: 12px; font-size: 13px; color: #57606f; }
+        .guide-box-mobile { display: none; }
+        @media (max-width: 991px) {
+            .guide-box-desktop { display: none; }
+            .guide-box-mobile { display: block; }
+        }
 
         /* 📋 PROFILE 車長檔案 */
         .profile-layout { display: grid; grid-template-columns: 1fr; gap: 30px; background: var(--card-bg); border: 1px solid #e1e8ed; border-radius: 4px; padding: 30px; }
@@ -413,6 +419,7 @@
                     <div class="admin-panel" id="adminPanel">
                         <h4 style="color: var(--danger-color); font-size: 15px; font-weight: 700; margin-bottom: 15px;">🛠️ Conductor Control Panel / 高級排班系統</h4>
                         <form id="adminScheduleForm">
+                            <input type="hidden" id="scheduleEditingId" value="">
                             <div class="form-row">
                                 <div class="input-track"><label>選擇年月份</label><select id="eventYearMonth" required><option value="2026-06">2026 年 6 月</option><option value="2026-07" selected>2026 年 7 月</option><option value="2026-08">2026 年 8 月</option></select></div>
                                 <div class="input-track"><label>選擇日期</label><input type="number" id="eventDay" min="1" max="31" placeholder="5" required></div>
@@ -424,6 +431,8 @@
                                     <select id="eventTag" required>
                                         <option value="LIVE">LIVE (網路直播)</option>
                                         <option value="OFFLINE">OFFLINE (線下活動)</option>
+                                        <option value="CONCERT">CONCERT (演唱會)</option>
+                                        <option value="FANMEET">FANMEET (見面會)</option>
                                         <option value="SERIES">SERIES (影劇播出)</option>
                                         <option value="VARIETY">VARIETY (綜藝播映)</option>
                                         <option value="MAGAZINE">MAGAZINE (雜誌畫報)</option>
@@ -435,7 +444,8 @@
                                 <div class="input-track"><label>地點或直播網址</label><input type="text" id="eventLocation" required></div>
                             </div>
                             <div class="input-track"><label>班次活動名稱</label><input type="text" id="eventTitle" required></div>
-                            <button type="submit" class="btn-board" style="background: var(--danger-color); padding: 10px;">同步更新列車時刻表</button>
+                            <button type="submit" id="scheduleSubmitBtn" class="btn-board" style="background: var(--danger-color); padding: 10px;">同步更新列車時刻表</button>
+                            <button type="button" id="scheduleCancelBtn" class="btn-board" style="background: #95a5a6; padding: 10px; margin-top: 8px; display:none;" onclick="cancelScheduleEdit()">✕ 取消編輯</button>
                         </form>
                     </div>
 
@@ -449,7 +459,7 @@
                         <p class="backup-hint">匯出會把目前雲端資料庫的內容打包成 .json 留存；匯入是把備份檔的內容「新增」回雲端資料庫（不會自動覆蓋既有資料），僅車長登入後可使用。</p>
                     </div>
 
-                    <div class="guide-box">
+                    <div class="guide-box guide-box-desktop">
                         <h3 style="font-size: 14px; font-weight: 700; color: var(--accent-rail);" data-i18n="guide_title">📋 乘車指南 / PASSENGER GUIDE</h3>
                         <ol>
                             <li data-i18n="guide_1"><strong>車長檔案：</strong>Phuwin 的個人檔案。</li>
@@ -470,6 +480,17 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="guide-box guide-box-mobile">
+                <h3 style="font-size: 14px; font-weight: 700; color: var(--accent-rail);" data-i18n="guide_title">📋 乘車指南 / PASSENGER GUIDE</h3>
+                <ol>
+                    <li data-i18n="guide_1"><strong>車長檔案：</strong>Phuwin 的個人檔案。</li>
+                    <li data-i18n="guide_2"><strong>影視車廂：</strong>Phuwin 的影視作品。</li>
+                    <li data-i18n="guide_3"><strong>音樂廣播：</strong>Phuwin 的音樂作品。</li>
+                    <li data-i18n="guide_4"><strong>採訪車廂：</strong>Phuwin 的採訪相關影片。</li>
+                    <li data-i18n="guide_5"><strong>美談月台：</strong>誇 Phuwin 的地方。</li>
+                </ol>
             </div>
         </section>
 
@@ -498,11 +519,13 @@
                     <button type="submit" class="btn-board" style="background: #9b59b6; padding: 10px 20px; width: auto;">更新頭像與社群</button>
                 </form>
                 <form id="adminProfileAddForm">
+                    <input type="hidden" id="profileItemEditingId" value="">
                     <div class="form-row">
                         <div class="input-track"><label>項目名稱 (如：身高)</label><input type="text" id="addLabel" required></div>
                         <div class="input-track"><label>內容描述</label><input type="text" id="addValue" required></div>
                     </div>
-                    <button type="submit" class="btn-board" style="background: #8e44ad; padding: 10px;">追加項目至車長檔案</button>
+                    <button type="submit" id="profileItemSubmitBtn" class="btn-board" style="background: #8e44ad; padding: 10px;">追加項目至車長檔案</button>
+                    <button type="button" id="profileItemCancelBtn" class="btn-board" style="background: #95a5a6; padding: 10px; margin-top: 8px; display:none;" onclick="cancelProfileItemEdit()">✕ 取消編輯</button>
                 </form>
             </div>
         </section>
@@ -514,6 +537,7 @@
             <div class="admin-panel" id="adminDramaPanel" style="border-color: #3498db;">
                 <h4 style="color: #3498db; font-size: 15px; font-weight: 700; margin-bottom: 15px;">🎬 Carriage 1 Manager / 影視車廂作品排班上架系統</h4>
                 <form id="adminDramaForm">
+                    <input type="hidden" id="dramaEditingId" value="">
                     <div class="form-row">
                         <div class="input-track"><label>影劇作品類型</label><select id="dramaType"><option value="SERIES">SERIES (電視劇集)</option><option value="MOVIE">MOVIE (電影作品)</option><option value="VARIETY">VARIETY (綜藝節目)</option></select></div>
                         <div class="input-track"><label>作品名稱</label><input type="text" id="dramaTitle" required></div>
@@ -522,7 +546,8 @@
                         <div class="input-track"><label>首播年份或詳細日期</label><input type="text" id="dramaYear" placeholder="例如：2024" required></div>
                         <div class="input-track"><label>劇照或海報網路圖片網址 (URL)</label><input type="url" id="dramaImgUrl"></div>
                     </div>
-                    <button type="submit" class="btn-board" style="background: #3498db; padding: 10px;">將影視作品挂載上架</button>
+                    <button type="submit" id="dramaSubmitBtn" class="btn-board" style="background: #3498db; padding: 10px;">將影視作品挂載上架</button>
+                    <button type="button" id="dramaCancelBtn" class="btn-board" style="background: #95a5a6; padding: 10px; margin-top: 8px; display:none;" onclick="cancelDramaEdit()">✕ 取消編輯</button>
                 </form>
             </div>
         </section>
@@ -534,6 +559,7 @@
             <div class="admin-panel" id="adminMusicPanel" style="border-color: #e67e22;">
                 <h4 style="color: #e67e22; font-size: 15px; font-weight: 700; margin-bottom: 15px;">🎵 Carriage 2 Manager / 音樂廣播單曲上架系統</h4>
                 <form id="adminMusicForm">
+                    <input type="hidden" id="musicEditingId" value="">
                     <div class="form-row">
                         <div class="input-track"><label>作品分類</label><select id="musicType"><option value="SINGLE">SINGLE (個人單曲)</option><option value="OST">OST (影視原聲帶)</option><option value="STAGE">STAGE (特別舞台音軌)</option></select></div>
                         <div class="input-track"><label>歌曲/單曲名稱</label><input type="text" id="musicTitle" required></div>
@@ -542,7 +568,8 @@
                         <div class="input-track"><label>發行日期</label><input type="text" id="musicDate" placeholder="例如：2023.11.20" required></div>
                         <div class="input-track"><label>封面或音樂概念圖網路網址 (URL)</label><input type="url" id="musicImgUrl"></div>
                     </div>
-                    <button type="submit" class="btn-board" style="background: #e67e22; padding: 10px;">將音樂作品挂載播音</button>
+                    <button type="submit" id="musicSubmitBtn" class="btn-board" style="background: #e67e22; padding: 10px;">將音樂作品挂載播音</button>
+                    <button type="button" id="musicCancelBtn" class="btn-board" style="background: #95a5a6; padding: 10px; margin-top: 8px; display:none;" onclick="cancelMusicEdit()">✕ 取消編輯</button>
                 </form>
             </div>
         </section>
@@ -554,6 +581,7 @@
             <div class="admin-panel" id="adminInterviewPanel" style="border-color: #16a085;">
                 <h4 style="color: #16a085; font-size: 15px; font-weight: 700; margin-bottom: 15px;">✍️ Carriage 3 Manager / 深度採訪與影音金句裝載系統</h4>
                 <form id="adminInterviewForm">
+                    <input type="hidden" id="interviewEditingId" value="">
                     <div class="input-track">
                         <label>訪談名言金句內容 (如果不填影片，只填此欄即為純金句卡片)</label>
                         <textarea id="interviewQuote" rows="3" placeholder="請在此填入 Phuwin 的深度訪談、文字名言..."></textarea>
@@ -568,7 +596,8 @@
                             <input type="text" id="interviewSource" placeholder="例如：— 出處：Mint Magazine Thailand (2024)" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn-board" style="background: #16a085; padding: 10px;">上架訪談紀錄至採訪車廂</button>
+                    <button type="submit" id="interviewSubmitBtn" class="btn-board" style="background: #16a085; padding: 10px;">上架訪談紀錄至採訪車廂</button>
+                    <button type="button" id="interviewCancelBtn" class="btn-board" style="background: #95a5a6; padding: 10px; margin-top: 8px; display:none;" onclick="cancelInterviewEdit()">✕ 取消編輯</button>
                 </form>
             </div>
         </section>
@@ -883,7 +912,7 @@
                 const distance = targetDate - new Date().getTime();
                 let countdownHtml = distance < 0 ? (distance > -86400000 ? `<span class="countdown-badge" style="background:#2ecc71;">${t('countdown_today')}</span>` : `<span class="countdown-badge" style="background:#b2bec3;">${t('countdown_ended')}</span>`) : `<span class="countdown-badge">${t('countdown_prefix')}${Math.ceil(distance/(1000*60*60*24))}${t('countdown_suffix')}</span>`;
                 const itemDiv = document.createElement('div'); itemDiv.className = 'major-event-item';
-                itemDiv.innerHTML = `<div class="event-main-line"><div><span class="major-event-tag">${item.tag}</span> <strong>${item.month}.${item.day}</strong> — ${item.title}</div>${countdownHtml}</div><div class="event-detail-sub" style="display:flex; justify-content:space-between;"><div>${t('time_label')}${item.time} | ${t('location_label')}${item.location}</div>${globalAdminLoggedIn ? `<button class="btn-delete" onclick="deleteSchedule(${item.id})">❌ 下架</button>` : ''}</div>`;
+                itemDiv.innerHTML = `<div class="event-main-line"><div><span class="major-event-tag">${item.tag}</span> <strong>${item.month}.${item.day}</strong> — ${item.title}</div>${countdownHtml}</div><div class="event-detail-sub" style="display:flex; justify-content:space-between;"><div>${t('time_label')}${item.time} | ${t('location_label')}${item.location}</div>${globalAdminLoggedIn ? `<span><button class="btn-edit" onclick="editSchedule(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteSchedule(${item.id})">❌ 下架</button></span>` : ''}</div>`;
                 listContainer.appendChild(itemDiv);
             });
             syncEventsListHeight();
@@ -939,7 +968,7 @@
 
             const linksDiv = document.getElementById('profLinks');
             if(linksDiv) {
-                linksDiv.innerHTML = (profileMeta.ig ? `<a href="${profileMeta.ig}" target="_blank" style="display:inline-block; background:#e1306c; color:white; padding:5px 12px; border-radius:4px; text-decoration:none; font-size:12px; margin:4px; font-weight:bold;">Instagram</a>` : '') + (profileMeta.x ? `<a href="${profileMeta.x}" target="_blank" style="display:inline-block; background:#1da1f2; color:white; padding:5px 12px; border-radius:4px; text-decoration:none; font-size:12px; margin:4px; font-weight:bold;">X (Twitter)</a>` : '');
+                linksDiv.innerHTML = (profileMeta.ig ? `<a href="${profileMeta.ig}" target="_blank" style="display:inline-block; background:var(--accent-rail); color:white; padding:5px 12px; border-radius:4px; text-decoration:none; font-size:12px; margin:4px; font-weight:bold;">Instagram</a>` : '') + (profileMeta.x ? `<a href="${profileMeta.x}" target="_blank" style="display:inline-block; background:#34495e; color:white; padding:5px 12px; border-radius:4px; text-decoration:none; font-size:12px; margin:4px; font-weight:bold;">X (Twitter)</a>` : '');
             }
 
             const tbody = document.getElementById('profileTableBody');
@@ -947,7 +976,7 @@
             tbody.innerHTML = '';
             profileItems.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="label">${item.label}</td><td style="color:var(--text-main); font-weight:500;">${item.value}</td>${globalAdminLoggedIn ? `<td style="width:10%; text-align:right;"><button class="btn-delete" onclick="deleteProfileItem(${item.id})">❌ 刪除</button></td>` : ''}`;
+                tr.innerHTML = `<td class="label">${item.label}</td><td style="color:var(--text-main); font-weight:500;">${item.value}</td>${globalAdminLoggedIn ? `<td style="width:16%; text-align:right; white-space:nowrap;"><button class="btn-edit" onclick="editProfileItem(${item.id})">✏️</button><button class="btn-delete" onclick="deleteProfileItem(${item.id})">❌</button></td>` : ''}`;
                 tbody.appendChild(tr);
             });
         }
@@ -959,7 +988,7 @@
             grid.innerHTML = '';
             dramaItems.forEach(item => {
                 const card = document.createElement('div'); card.className = 'window-card';
-                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span><h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">年份/日期：${item.year}</p>${globalAdminLoggedIn ? `<button class="btn-delete" style="position:absolute; right:15px; bottom:15px;" onclick="deleteDramaItem(${item.id})">❌ 下架</button>` : ''}</div>`;
+                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span><h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">年份/日期：${item.year}</p>${globalAdminLoggedIn ? `<span style="position:absolute; right:15px; bottom:15px;"><button class="btn-edit" onclick="editDramaItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteDramaItem(${item.id})">❌ 下架</button></span>` : ''}</div>`;
                 grid.appendChild(card);
             });
         }
@@ -971,7 +1000,7 @@
             grid.innerHTML = '';
             musicItems.forEach(item => {
                 const card = document.createElement('div'); card.className = 'window-card';
-                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span><h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">發行時間：${item.date}</p>${globalAdminLoggedIn ? `<button class="btn-delete" style="position:absolute; right:15px; bottom:15px;" onclick="deleteMusicItem(${item.id})">❌ 下架</button>` : ''}</div>`;
+                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span><h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">發行時間：${item.date}</p>${globalAdminLoggedIn ? `<span style="position:absolute; right:15px; bottom:15px;"><button class="btn-edit" onclick="editMusicItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteMusicItem(${item.id})">❌ 下架</button></span>` : ''}</div>`;
                 grid.appendChild(card);
             });
         }
@@ -997,7 +1026,7 @@
                         quoteHtml = `<p class="interview-quote">${item.quote}</p>`;
                     }
                 }
-                div.innerHTML = `${videoHtml}${quoteHtml}<div class="interview-source">${item.source}</div>${globalAdminLoggedIn ? `<button class="btn-delete" style="position:absolute; top:15px; left:15px; z-index:10;" onclick="deleteInterviewItem(${item.id})">❌ 下架訪談</button>` : ''}`;
+                div.innerHTML = `${videoHtml}${quoteHtml}<div class="interview-source">${item.source}</div>${globalAdminLoggedIn ? `<span style="position:absolute; top:15px; left:15px; z-index:10;"><button class="btn-edit" onclick="editInterviewItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteInterviewItem(${item.id})">❌ 下架訪談</button></span>` : ''}`;
                 container.appendChild(div);
             });
             if (interviewItems.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-sub); padding:30px 0;">${t('no_interview')}</div>`; }
@@ -1109,20 +1138,46 @@
             reader.readAsText(file);
         }
 
-        // --- 各大表單監聽器（改寫入 Supabase） ---
+        // --- 各大表單監聽器（改寫入 Supabase，支援新增／編輯） ---
         document.getElementById('adminScheduleForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const ym = document.getElementById('eventYearMonth').value.split('-');
-            const { error } = await sb.from('schedules').insert({
+            const payload = {
                 year: parseInt(ym[0]), month: parseInt(ym[1]), day: parseInt(document.getElementById('eventDay').value),
                 time: document.getElementById('eventTime').value, tag: document.getElementById('eventTag').value,
                 privacy: document.getElementById('eventPrivacy').value, location: document.getElementById('eventLocation').value,
                 title: document.getElementById('eventTitle').value
-            });
-            if (error) { alert("新增失敗：" + error.message); return; }
-            e.target.reset();
+            };
+            const editingId = document.getElementById('scheduleEditingId').value;
+            const { error } = editingId
+                ? await sb.from('schedules').update(payload).eq('id', editingId)
+                : await sb.from('schedules').insert(payload);
+            if (error) { alert((editingId ? "更新失敗：" : "新增失敗：") + error.message); return; }
+            cancelScheduleEdit();
             await loadSchedules();
         });
+
+        function editSchedule(id) {
+            const item = schedules.find(s => s.id === id);
+            if (!item) return;
+            document.getElementById('scheduleEditingId').value = item.id;
+            document.getElementById('eventYearMonth').value = `${item.year}-${String(item.month).padStart(2,'0')}`;
+            document.getElementById('eventDay').value = item.day;
+            document.getElementById('eventTime').value = item.time;
+            document.getElementById('eventTag').value = item.tag;
+            document.getElementById('eventPrivacy').value = item.privacy;
+            document.getElementById('eventLocation').value = item.location;
+            document.getElementById('eventTitle').value = item.title;
+            document.getElementById('scheduleSubmitBtn').textContent = '✏️ 更新此班次資料';
+            document.getElementById('scheduleCancelBtn').style.display = 'block';
+            document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        function cancelScheduleEdit() {
+            document.getElementById('adminScheduleForm').reset();
+            document.getElementById('scheduleEditingId').value = '';
+            document.getElementById('scheduleSubmitBtn').textContent = '同步更新列車時刻表';
+            document.getElementById('scheduleCancelBtn').style.display = 'none';
+        }
 
         document.getElementById('adminProfileBaseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1137,49 +1192,137 @@
 
         document.getElementById('adminProfileAddForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const { error } = await sb.from('profile_items').insert({
-                label: document.getElementById('addLabel').value, value: document.getElementById('addValue').value
-            });
-            if (error) { alert("新增失敗：" + error.message); return; }
-            document.getElementById('addLabel').value = ''; document.getElementById('addValue').value = '';
+            const payload = { label: document.getElementById('addLabel').value, value: document.getElementById('addValue').value };
+            const editingId = document.getElementById('profileItemEditingId').value;
+            const { error } = editingId
+                ? await sb.from('profile_items').update(payload).eq('id', editingId)
+                : await sb.from('profile_items').insert(payload);
+            if (error) { alert((editingId ? "更新失敗：" : "新增失敗：") + error.message); return; }
+            cancelProfileItemEdit();
             await loadProfile();
         });
 
+        function editProfileItem(id) {
+            const item = profileItems.find(p => p.id === id);
+            if (!item) return;
+            document.getElementById('profileItemEditingId').value = item.id;
+            document.getElementById('addLabel').value = item.label;
+            document.getElementById('addValue').value = item.value;
+            document.getElementById('profileItemSubmitBtn').textContent = '✏️ 更新此項目';
+            document.getElementById('profileItemCancelBtn').style.display = 'block';
+            document.getElementById('adminProfilePanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        function cancelProfileItemEdit() {
+            document.getElementById('addLabel').value = ''; document.getElementById('addValue').value = '';
+            document.getElementById('profileItemEditingId').value = '';
+            document.getElementById('profileItemSubmitBtn').textContent = '追加項目至車長檔案';
+            document.getElementById('profileItemCancelBtn').style.display = 'none';
+        }
+
         document.getElementById('adminDramaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const { error } = await sb.from('drama_items').insert({
+            const payload = {
                 type: document.getElementById('dramaType').value, title: document.getElementById('dramaTitle').value,
                 year: document.getElementById('dramaYear').value, img: document.getElementById('dramaImgUrl').value
-            });
-            if (error) { alert("上架失敗：" + error.message); return; }
-            document.getElementById('dramaTitle').value = ''; document.getElementById('dramaYear').value = ''; document.getElementById('dramaImgUrl').value = '';
+            };
+            const editingId = document.getElementById('dramaEditingId').value;
+            const { error } = editingId
+                ? await sb.from('drama_items').update(payload).eq('id', editingId)
+                : await sb.from('drama_items').insert(payload);
+            if (error) { alert((editingId ? "更新失敗：" : "上架失敗：") + error.message); return; }
+            cancelDramaEdit();
             await loadDrama();
         });
 
+        function editDramaItem(id) {
+            const item = dramaItems.find(d => d.id === id);
+            if (!item) return;
+            document.getElementById('dramaEditingId').value = item.id;
+            document.getElementById('dramaType').value = item.type;
+            document.getElementById('dramaTitle').value = item.title;
+            document.getElementById('dramaYear').value = item.year;
+            document.getElementById('dramaImgUrl').value = item.img || '';
+            document.getElementById('dramaSubmitBtn').textContent = '✏️ 更新此作品';
+            document.getElementById('dramaCancelBtn').style.display = 'block';
+            document.getElementById('adminDramaPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        function cancelDramaEdit() {
+            document.getElementById('adminDramaForm').reset();
+            document.getElementById('dramaEditingId').value = '';
+            document.getElementById('dramaSubmitBtn').textContent = '將影視作品挂載上架';
+            document.getElementById('dramaCancelBtn').style.display = 'none';
+        }
+
         document.getElementById('adminMusicForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const { error } = await sb.from('music_items').insert({
+            const payload = {
                 type: document.getElementById('musicType').value, title: document.getElementById('musicTitle').value,
                 date: document.getElementById('musicDate').value, img: document.getElementById('musicImgUrl').value
-            });
-            if (error) { alert("上架失敗：" + error.message); return; }
-            document.getElementById('musicTitle').value = ''; document.getElementById('musicDate').value = ''; document.getElementById('musicImgUrl').value = '';
+            };
+            const editingId = document.getElementById('musicEditingId').value;
+            const { error } = editingId
+                ? await sb.from('music_items').update(payload).eq('id', editingId)
+                : await sb.from('music_items').insert(payload);
+            if (error) { alert((editingId ? "更新失敗：" : "上架失敗：") + error.message); return; }
+            cancelMusicEdit();
             await loadMusic();
         });
+
+        function editMusicItem(id) {
+            const item = musicItems.find(m => m.id === id);
+            if (!item) return;
+            document.getElementById('musicEditingId').value = item.id;
+            document.getElementById('musicType').value = item.type;
+            document.getElementById('musicTitle').value = item.title;
+            document.getElementById('musicDate').value = item.date;
+            document.getElementById('musicImgUrl').value = item.img || '';
+            document.getElementById('musicSubmitBtn').textContent = '✏️ 更新此作品';
+            document.getElementById('musicCancelBtn').style.display = 'block';
+            document.getElementById('adminMusicPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        function cancelMusicEdit() {
+            document.getElementById('adminMusicForm').reset();
+            document.getElementById('musicEditingId').value = '';
+            document.getElementById('musicSubmitBtn').textContent = '將音樂作品挂載播音';
+            document.getElementById('musicCancelBtn').style.display = 'none';
+        }
 
         document.getElementById('adminInterviewForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const rawVid = document.getElementById('interviewVideoUrl').value;
-            const { error } = await sb.from('interview_items').insert({
+            const payload = {
                 quote: document.getElementById('interviewQuote').value,
                 video: parseYoutubeEmbed(rawVid),
                 source: document.getElementById('interviewSource').value
-            });
-            if (error) { alert("上架失敗：" + error.message); return; }
-            document.getElementById('interviewQuote').value = ''; document.getElementById('interviewVideoUrl').value = ''; document.getElementById('interviewSource').value = '';
+            };
+            const editingId = document.getElementById('interviewEditingId').value;
+            const { error } = editingId
+                ? await sb.from('interview_items').update(payload).eq('id', editingId)
+                : await sb.from('interview_items').insert(payload);
+            if (error) { alert((editingId ? "更新失敗：" : "上架失敗：") + error.message); return; }
+            const wasEditing = !!editingId;
+            cancelInterviewEdit();
             await loadInterview();
-            alert("上架成功！");
+            if (!wasEditing) alert("上架成功！");
         });
+
+        function editInterviewItem(id) {
+            const item = interviewItems.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('interviewEditingId').value = item.id;
+            document.getElementById('interviewQuote').value = item.quote || '';
+            document.getElementById('interviewVideoUrl').value = item.video || '';
+            document.getElementById('interviewSource').value = item.source || '';
+            document.getElementById('interviewSubmitBtn').textContent = '✏️ 更新此訪談';
+            document.getElementById('interviewCancelBtn').style.display = 'block';
+            document.getElementById('adminInterviewPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        function cancelInterviewEdit() {
+            document.getElementById('adminInterviewForm').reset();
+            document.getElementById('interviewEditingId').value = '';
+            document.getElementById('interviewSubmitBtn').textContent = '上架訪談紀錄至採訪車廂';
+            document.getElementById('interviewCancelBtn').style.display = 'none';
+        }
 
         document.getElementById('ticketForm').addEventListener('submit', async function(e) {
             e.preventDefault();
