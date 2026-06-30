@@ -103,20 +103,6 @@
         }
         nav a:hover::after, nav a.active::after { width: 100%; }
 
-        .lang-switcher {
-            flex-shrink: 0;
-            margin-left: 16px;
-            padding: 6px 10px;
-            border: 1px solid var(--accent-line);
-            border-radius: 4px;
-            background: #fff;
-            color: var(--accent-rail);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .lang-switcher:focus { outline: none; border-color: var(--accent-rail); }
-
         main { max-width: 1200px; margin: 0 auto; padding: 40px 20px; flex: 1; width: 100%; }
         .page { display: none; }
         .page.active { display: block; animation: stationFade 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -281,6 +267,9 @@
         .info-table td.label { color: var(--text-sub); width: 25%; font-weight: 600; }
 
         /* 車廂卡片排版 */
+        .carriage-controls { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; background: var(--card-bg); border: 1px solid #e1e8ed; border-radius: 4px; padding: 14px 18px; }
+        .carriage-controls .input-track { flex: 1; min-width: 160px; }
+        .carriage-controls select { padding: 8px 10px; font-size: 13px; }
         .grid-carriage { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 25px; }
         .window-card { background: var(--card-bg); border: 1px solid #e1e8ed; border-radius: 4px; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; }
         .window-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--accent-rail); }
@@ -288,6 +277,7 @@
         .window-top img { width: 100%; height: 100%; object-fit: cover; }
         .window-content { padding: 20px; flex-grow: 1; position: relative; }
         .window-tag { font-size: 11px; text-transform: uppercase; color: var(--accent-rail); font-weight: 700; margin-bottom: 8px; display: inline-block; }
+        .role-badge { font-size: 10px; background: #eaedf0; color: var(--accent-rail); padding: 2px 7px; border-radius: 3px; font-weight: 600; margin-left: 6px; }
 
         /* 採訪車廂 */
         .interview-container { display: flex; flex-direction: column; gap: 25px; }
@@ -329,7 +319,6 @@
         @media (max-width: 768px) {
             .nav-container { flex-wrap: wrap; row-gap: 10px; padding: 12px 16px; }
             .station-logo { order: 1; margin-right: 0; }
-            .lang-switcher { order: 2; margin-left: auto; }
             nav { order: 3; width: 100%; justify-content: flex-start; flex-grow: 0; }
 
             main { padding: 24px 14px; }
@@ -384,11 +373,6 @@
                     <li><a href="#" class="nav-link" onclick="switchPlatform('praise')" data-i18n="nav_praise">美談月台 / THE WALL</a></li>
                 </ul>
             </nav>
-            <select id="langSwitcher" class="lang-switcher" onchange="setLanguage(this.value)">
-                <option value="zh">中文</option>
-                <option value="en">English</option>
-                <option value="th">ภาษาไทย</option>
-            </select>
         </div>
     </header>
 
@@ -532,6 +516,24 @@
 
         <section id="drama" class="page">
             <div class="section-title" data-i18n="title_drama">FILMOGRAPHY & VARIETY / 影視綜藝車廂</div>
+            <div class="carriage-controls">
+                <div class="input-track" style="margin-bottom:0;">
+                    <label>篩選演出分類</label>
+                    <select id="dramaFilterRole" onchange="renderDramaCarriage()">
+                        <option value="ALL">全部</option>
+                        <option value="LEAD">主演</option>
+                        <option value="SUPPORTING">配角</option>
+                        <option value="CAMEO">客串</option>
+                    </select>
+                </div>
+                <div class="input-track" style="margin-bottom:0;">
+                    <label>排列方式</label>
+                    <select id="dramaSortMode" onchange="renderDramaCarriage()">
+                        <option value="UPDATED">依照更新時間排列</option>
+                        <option value="WORKDATE">依照作品時間排列</option>
+                    </select>
+                </div>
+            </div>
             <div class="grid-carriage" id="dramaCarriageGrid"></div>
 
             <div class="admin-panel" id="adminDramaPanel" style="border-color: #3498db;">
@@ -539,8 +541,12 @@
                 <form id="adminDramaForm">
                     <input type="hidden" id="dramaEditingId" value="">
                     <div class="form-row">
-                        <div class="input-track"><label>影劇作品類型</label><select id="dramaType"><option value="SERIES">SERIES (電視劇集)</option><option value="MOVIE">MOVIE (電影作品)</option><option value="VARIETY">VARIETY (綜藝節目)</option></select></div>
+                        <div class="input-track"><label>影劇作品類型</label><select id="dramaType"><option value="SERIES">SERIES (電視劇集)</option><option value="MOVIE">MOVIE (電影作品)</option><option value="VARIETY">VARIETY (綜藝節目)</option><option value="MV">MV (音樂錄影帶)</option><option value="DUB">DUB (配音作品)</option></select></div>
                         <div class="input-track"><label>作品名稱</label><input type="text" id="dramaTitle" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-track"><label>演出分類</label><select id="dramaRoleType"><option value="">— 不適用 / 未分類 —</option><option value="LEAD">主演</option><option value="SUPPORTING">配角</option><option value="CAMEO">客串</option></select></div>
+                        <div class="input-track"><label>角色名稱（選填）</label><input type="text" id="dramaCharacterName" placeholder="例如：Phupha"></div>
                     </div>
                     <div class="form-row">
                         <div class="input-track"><label>首播年份或詳細日期</label><input type="text" id="dramaYear" placeholder="例如：2024" required></div>
@@ -554,6 +560,23 @@
 
         <section id="music" class="page">
             <div class="section-title" data-i18n="title_music">DISCOGRAPHY & STAGE / 音樂作品廣播</div>
+            <div class="carriage-controls">
+                <div class="input-track" style="margin-bottom:0;">
+                    <label>篩選作品性質</label>
+                    <select id="musicFilterCategory" onchange="renderMusicCarriage()">
+                        <option value="ALL">全部</option>
+                        <option value="SOLO">個人單曲</option>
+                        <option value="COLLAB">合作曲</option>
+                    </select>
+                </div>
+                <div class="input-track" style="margin-bottom:0;">
+                    <label>排列方式</label>
+                    <select id="musicSortMode" onchange="renderMusicCarriage()">
+                        <option value="UPDATED">依照更新時間排列</option>
+                        <option value="WORKDATE">依照作品時間排列</option>
+                    </select>
+                </div>
+            </div>
             <div class="grid-carriage" id="musicCarriageGrid"></div>
 
             <div class="admin-panel" id="adminMusicPanel" style="border-color: #e67e22;">
@@ -565,9 +588,10 @@
                         <div class="input-track"><label>歌曲/單曲名稱</label><input type="text" id="musicTitle" required></div>
                     </div>
                     <div class="form-row">
+                        <div class="input-track"><label>作品性質</label><select id="musicCategory" required><option value="SOLO">個人單曲</option><option value="COLLAB">合作曲</option></select></div>
                         <div class="input-track"><label>發行日期</label><input type="text" id="musicDate" placeholder="例如：2023.11.20" required></div>
-                        <div class="input-track"><label>封面或音樂概念圖網路網址 (URL)</label><input type="url" id="musicImgUrl"></div>
                     </div>
+                    <div class="input-track"><label>封面或音樂概念圖網路網址 (URL)</label><input type="url" id="musicImgUrl"></div>
                     <button type="submit" id="musicSubmitBtn" class="btn-board" style="background: #e67e22; padding: 10px;">將音樂作品挂載播音</button>
                     <button type="button" id="musicCancelBtn" class="btn-board" style="background: #95a5a6; padding: 10px; margin-top: 8px; display:none;" onclick="cancelMusicEdit()">✕ 取消編輯</button>
                 </form>
@@ -576,7 +600,17 @@
 
         <section id="interview" class="page">
             <div class="section-title" data-i18n="title_interview">WORDS & THINKING / 深度採訪車廂</div>
+            <div class="carriage-controls">
+                <div class="input-track" style="margin-bottom:0;">
+                    <label>排列方式</label>
+                    <select id="interviewSortMode" onchange="renderInterviewCarriage()">
+                        <option value="UPDATED">依照更新時間排列</option>
+                        <option value="WORKDATE">依照作品時間排列</option>
+                    </select>
+                </div>
+            </div>
             <div class="interview-container" id="interviewContainer"></div>
+
 
             <div class="admin-panel" id="adminInterviewPanel" style="border-color: #16a085;">
                 <h4 style="color: #16a085; font-size: 15px; font-weight: 700; margin-bottom: 15px;">✍️ Carriage 3 Manager / 深度採訪與影音金句裝載系統</h4>
@@ -724,23 +758,11 @@
                 login_prompt_email: "กรุณากรอกอีเมลนายสถานี:", login_prompt_pw: "กรุณากรอกรหัสผ่าน:",
             }
         };
-        let currentLang = localStorage.getItem('phuwin_lang') || 'zh';
+        const currentLang = 'zh';
         function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
         function applyStaticTranslations() {
             document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n')); });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-placeholder')); });
-            const sw = document.getElementById('langSwitcher');
-            if (sw) sw.value = currentLang;
-        }
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('phuwin_lang', lang);
-            applyStaticTranslations();
-            renderTimetable();
-            renderInterviewCarriage();
-            renderPraiseWall();
-            const badge = document.getElementById('loginStatusBadge');
-            if (badge) badge.innerText = globalAdminLoggedIn ? t('badge_admin') : t('badge_guest');
         }
 
         // --- 🔌 Supabase 雲端資料庫連線設定 ---
@@ -982,35 +1004,78 @@
         }
 
         // --- 3. 影視車廂渲染 ---
+        const roleLabels = { LEAD: '主演', SUPPORTING: '配角', CAMEO: '客串' };
+        const categoryLabels = { SOLO: '個人單曲', COLLAB: '合作曲' };
+
+        function sortByMode(list, mode, dateField) {
+            const arr = [...list];
+            if (mode === 'WORKDATE') {
+                arr.sort((a, b) => String(b[dateField] || '').localeCompare(String(a[dateField] || ''), undefined, { numeric: true }));
+            } else {
+                arr.sort((a, b) => b.id - a.id);
+            }
+            return arr;
+        }
+
         function renderDramaCarriage() {
             const grid = document.getElementById('dramaCarriageGrid');
             if(!grid) return;
+            const filterEl = document.getElementById('dramaFilterRole');
+            const sortEl = document.getElementById('dramaSortMode');
+            const filterRole = filterEl ? filterEl.value : 'ALL';
+            const sortMode = sortEl ? sortEl.value : 'UPDATED';
+            let list = dramaItems;
+            if (filterRole !== 'ALL') list = list.filter(item => item.role_type === filterRole);
+            list = sortByMode(list, sortMode, 'year');
             grid.innerHTML = '';
-            dramaItems.forEach(item => {
+            list.forEach(item => {
+                const roleBadge = item.role_type && roleLabels[item.role_type] ? `<span class="role-badge">${roleLabels[item.role_type]}${item.character_name ? ' · ' + item.character_name : ''}</span>` : '';
                 const card = document.createElement('div'); card.className = 'window-card';
-                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span><h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">年份/日期：${item.year}</p>${globalAdminLoggedIn ? `<span style="position:absolute; right:15px; bottom:15px;"><button class="btn-edit" onclick="editDramaItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteDramaItem(${item.id})">❌ 下架</button></span>` : ''}</div>`;
+                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span>${roleBadge}<h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">年份/日期：${item.year}</p>${globalAdminLoggedIn ? `<span style="position:absolute; right:15px; bottom:15px;"><button class="btn-edit" onclick="editDramaItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteDramaItem(${item.id})">❌ 下架</button></span>` : ''}</div>`;
                 grid.appendChild(card);
             });
+            if (list.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-sub); padding:30px 0;">目前沒有符合篩選條件的作品。</div>`; }
         }
 
         // --- 4. 音樂廣播渲染 ---
         function renderMusicCarriage() {
             const grid = document.getElementById('musicCarriageGrid');
             if(!grid) return;
+            const filterEl = document.getElementById('musicFilterCategory');
+            const sortEl = document.getElementById('musicSortMode');
+            const filterCategory = filterEl ? filterEl.value : 'ALL';
+            const sortMode = sortEl ? sortEl.value : 'UPDATED';
+            let list = musicItems;
+            if (filterCategory !== 'ALL') list = list.filter(item => item.category === filterCategory);
+            list = sortByMode(list, sortMode, 'date');
             grid.innerHTML = '';
-            musicItems.forEach(item => {
+            list.forEach(item => {
+                const categoryBadge = item.category && categoryLabels[item.category] ? `<span class="role-badge">${categoryLabels[item.category]}</span>` : '';
                 const card = document.createElement('div'); card.className = 'window-card';
-                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span><h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">發行時間：${item.date}</p>${globalAdminLoggedIn ? `<span style="position:absolute; right:15px; bottom:15px;"><button class="btn-edit" onclick="editMusicItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteMusicItem(${item.id})">❌ 下架</button></span>` : ''}</div>`;
+                card.innerHTML = `<div class="window-top"><img src="${item.img || 'https://placehold.co/400x250?text=No+Image'}" alt="${item.title}"></div><div class="window-content"><span class="window-tag">${item.type}</span>${categoryBadge}<h3>${item.title}</h3><p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">發行時間：${item.date}</p>${globalAdminLoggedIn ? `<span style="position:absolute; right:15px; bottom:15px;"><button class="btn-edit" onclick="editMusicItem(${item.id})">✏️ 編輯</button><button class="btn-delete" onclick="deleteMusicItem(${item.id})">❌ 下架</button></span>` : ''}</div>`;
                 grid.appendChild(card);
             });
+            if (list.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-sub); padding:30px 0;">目前沒有符合篩選條件的作品。</div>`; }
         }
 
         // --- 5. 🎬 深度採訪影音車廂動態渲染 ---
+        function extractYearFromSource(source) {
+            const match = String(source || '').match(/(\d{4})/);
+            return match ? match[1] : '';
+        }
         function renderInterviewCarriage() {
             const container = document.getElementById('interviewContainer');
             if(!container) return;
+            const sortEl = document.getElementById('interviewSortMode');
+            const sortMode = sortEl ? sortEl.value : 'UPDATED';
+            let list = interviewItems;
+            if (sortMode === 'WORKDATE') {
+                list = [...list].sort((a, b) => extractYearFromSource(b.source).localeCompare(extractYearFromSource(a.source)));
+            } else {
+                list = sortByMode(list, 'UPDATED');
+            }
             container.innerHTML = '';
-            interviewItems.forEach(item => {
+            list.forEach(item => {
                 const div = document.createElement('div');
                 const isQuoteOnly = !item.video && item.quote;
                 div.className = 'interview-card' + (isQuoteOnly ? ' quote-only' : '');
@@ -1223,7 +1288,9 @@
             e.preventDefault();
             const payload = {
                 type: document.getElementById('dramaType').value, title: document.getElementById('dramaTitle').value,
-                year: document.getElementById('dramaYear').value, img: document.getElementById('dramaImgUrl').value
+                year: document.getElementById('dramaYear').value, img: document.getElementById('dramaImgUrl').value,
+                role_type: document.getElementById('dramaRoleType').value || null,
+                character_name: document.getElementById('dramaCharacterName').value || null
             };
             const editingId = document.getElementById('dramaEditingId').value;
             const { error } = editingId
@@ -1242,6 +1309,8 @@
             document.getElementById('dramaTitle').value = item.title;
             document.getElementById('dramaYear').value = item.year;
             document.getElementById('dramaImgUrl').value = item.img || '';
+            document.getElementById('dramaRoleType').value = item.role_type || '';
+            document.getElementById('dramaCharacterName').value = item.character_name || '';
             document.getElementById('dramaSubmitBtn').textContent = '✏️ 更新此作品';
             document.getElementById('dramaCancelBtn').style.display = 'block';
             document.getElementById('adminDramaPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1257,7 +1326,8 @@
             e.preventDefault();
             const payload = {
                 type: document.getElementById('musicType').value, title: document.getElementById('musicTitle').value,
-                date: document.getElementById('musicDate').value, img: document.getElementById('musicImgUrl').value
+                date: document.getElementById('musicDate').value, img: document.getElementById('musicImgUrl').value,
+                category: document.getElementById('musicCategory').value
             };
             const editingId = document.getElementById('musicEditingId').value;
             const { error } = editingId
@@ -1276,6 +1346,7 @@
             document.getElementById('musicTitle').value = item.title;
             document.getElementById('musicDate').value = item.date;
             document.getElementById('musicImgUrl').value = item.img || '';
+            document.getElementById('musicCategory').value = item.category || 'SOLO';
             document.getElementById('musicSubmitBtn').textContent = '✏️ 更新此作品';
             document.getElementById('musicCancelBtn').style.display = 'block';
             document.getElementById('adminMusicPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
