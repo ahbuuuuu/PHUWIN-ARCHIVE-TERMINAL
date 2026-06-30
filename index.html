@@ -518,6 +518,17 @@
             <div class="section-title" data-i18n="title_drama">FILMOGRAPHY & VARIETY / 影視綜藝車廂</div>
             <div class="carriage-controls">
                 <div class="input-track" style="margin-bottom:0;">
+                    <label>篩選作品類型</label>
+                    <select id="dramaFilterType" onchange="renderDramaCarriage()">
+                        <option value="ALL">全部</option>
+                        <option value="SERIES">電視劇</option>
+                        <option value="MOVIE">電影</option>
+                        <option value="VARIETY">綜藝</option>
+                        <option value="DUB">配音</option>
+                        <option value="MV">MV</option>
+                    </select>
+                </div>
+                <div class="input-track" style="margin-bottom:0;">
                     <label>篩選演出分類</label>
                     <select id="dramaFilterRole" onchange="renderDramaCarriage()">
                         <option value="ALL">全部</option>
@@ -1020,11 +1031,14 @@
         function renderDramaCarriage() {
             const grid = document.getElementById('dramaCarriageGrid');
             if(!grid) return;
+            const typeFilterEl = document.getElementById('dramaFilterType');
             const filterEl = document.getElementById('dramaFilterRole');
             const sortEl = document.getElementById('dramaSortMode');
+            const filterType = typeFilterEl ? typeFilterEl.value : 'ALL';
             const filterRole = filterEl ? filterEl.value : 'ALL';
             const sortMode = sortEl ? sortEl.value : 'UPDATED';
             let list = dramaItems;
+            if (filterType !== 'ALL') list = list.filter(item => item.type === filterType);
             if (filterRole !== 'ALL') list = list.filter(item => item.role_type === filterRole);
             list = sortByMode(list, sortMode, 'year');
             grid.innerHTML = '';
